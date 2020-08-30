@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alunos</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container" id="app">
+
+        <div class="row mt-5">
+            <div class="col-12 border-bottom mb-5 d-flex justify-content-between align-items-center">
+                <h2 :title="ex">{{name}}</h2>
+                <p>{{contactsCount}}</p>
+            </div>
+
+            <div class="col-4">
+
+                <form action="">
+
+                    <div class="form-group mr-1">
+                        <label>Nome do aluno</label>
+                        <input type="text" class="form-control" placeholder="Nome Completo..." v-model="contact.name">
+                    </div>
+
+
+                    <div class="form-group mr-1">
+                        <label>Matrícula</label>
+                        <input type="number" class="form-control" placeholder="número da matricular" v-model="contact.matricular">
+                    </div>
+
+                    <div class="form-group mr-1">
+                        <label>Nota</label>
+                        <input type="phone" class="form-control" placeholder="Nota do aluno" v-model="contact.nota">
+                    </div>
+
+                    <div class="form-group ml-1">
+                        <button v-if="!isEdit" class="btn btn-lg btn-rounded btn-success" @click.prevent="saveContact(contact)">Cadastra Alunos</button>
+                        <button v-if="isEdit" class="btn btn-lg btn-rounded btn-primary" @click.prevent="updateContact(contact)">Atualizar Alunos</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-8 border-left">
+                
+                <div class="contact" v-if="contacts.length">
+                        
+                    <div class="col-12 mb-2" v-for="contact in contacts">
+
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Nome: {{contact.name}}</h5>
+
+                                <p class="card-text">Matrícula: {{contact.matricular}}, Nota: {{contact.nota}}</p>
+
+                                <a href="#" class="btn btn-sm btn-primary" @click.prevent="editContact(contact)">EDITAR</a>
+                                <a href="#" class="btn btn-sm btn-danger" @click.prevent="removeContact(contact.id)">DELETAR</a>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div v-else>Nenhum aluno encontrado!</div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>
+        let app = new Vue({
+            el: "#app",
+            data: {
+                contacts: [],
+                name: 'Cadastro de alunos',
+                contact: {
+                    id: '',
+                    name: '',
+                    matricular: '',
+                    nota: ''
+                },
+                isEdit: false,
+                ex: 'Meu app de alunos'
+            }, 
+            computed: {
+                contactsCount() {
+                    if(this.contacts.length != null){
+                    return `Total de Alunos é ${this.contacts.length}`;
+                }else{
+                    return `Total de Alunos é ${this.contacts.length = 0}`;
+                }
+                }
+            },
+            created() {
+                this.contacts = JSON.parse(localStorage.getItem('contactsApp'));
+            },
+            methods: {
+                saveContact(contact) {
+
+                    let contacts = localStorage.getItem('contactsApp');
+
+                    contact.id = new Date().getTime();
+
+                    if(contacts) {
+                        
+                        contacts = JSON.parse(contacts);
+                        contacts.push(contact);
+
+                    } else {
+                        contacts = [contact];
+                    }
+
+                    this.contacts = contacts;
+
+                    // o atualizar local storage independemente de novo contato ou nova adição   
+                    localStorage.setItem('contactsApp', JSON.stringify(contacts));
+
+                    location.reload();
+                },
+                removeContact(contactId) {
+                    let contacts = localStorage.getItem('contactsApp');
+
+                    if(!contacts) return;
+
+                    contacts = JSON.parse(contacts);
+
+                    contacts = contacts.filter((contact) => {
+                        return contact.id != contactId;
+                    });
+
+                    this.contacts = contacts;
+
+                    localStorage.setItem('contactsApp', JSON.stringify(contacts));
+                },
+                editContact(contact) {
+                    this.contact = contact;
+                    this.isEdit = true;
+                },
+                updateContact(contact) {
+                    let contacts = this.contacts.map(contactMap => {
+                        if(contactMap.id == contact.id) {
+                            return contact;
+                        }
+
+                        return contactMap;
+                    });
+
+                    this.contacts = contacts;
+                    this.isEdit = false;
+
+                    localStorage.setItem('contactsApp', JSON.stringify(contacts));
+
+                    location.reload();
+   
+                }
+            }
+        });
+    </script>
+</body>
+</html>
